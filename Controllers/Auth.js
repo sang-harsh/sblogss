@@ -1,24 +1,54 @@
 const express = require('express');
-//const isAuth = require('./middleware');
-//const { cleanUpAndValidate, generateVerificationToken, sendVerificationEmail } = require('../Utils/AuthUtils');
-//const UserModel = require('../Models/UserModel');
-//const bycrypt = require('bycrypt');
-//const validator = require('validator');
-
+const { cleanUpAndValidate, generateVerificationToken, sendVerificationEmail } = require('../Utils/AuthUtils');
+const User = require('../Models/User');
 const authRouter = express.Router();
-
-// authRouter.post('/', (req, res) => {
-//       res.send('Authentication');
-
-// });
 
 authRouter.post('/login', (req, res) => {
       res.send('login');
 
 });
 
-authRouter.post('/register', (req, res) => {
-      res.send('register');
+authRouter.post('/register', async (req, res) => {
+      const { username, email, name, password, phone } = req.body;
+      try {
+            cleanUpAndValidate({ username, email, name, password, phone });
+      } catch (error) {
+            return res.send({
+                  status: 401,
+                  message: error,
+                  data: req.body
+            })
+      }
+      //verifing if it is existing user
+      try {
+            await User.verifyUserNameAndEmailExists({ username, email, phone });
+      } catch (error) {
+            return res.send({
+                  status: 401,
+                  message: error,
+                  data: req.body
+            })
+      }
+
+      //Create and store the user in db
+      const user = new User({ username, email, name, password, phone });
+      try {
+            const dbUser = await user.registerUser();
+            return res.send({
+                  status: 200,
+                  message: "registration successful",
+                  data: req.body
+            })
+      } catch (error) {
+            return res.send({
+                  status: 401,
+                  error: error,
+                  message: "Error in DB call",
+                  data: req.body
+            })
+      }
+
+
 });
 
 authRouter.post('/logout', (req, res) => {
