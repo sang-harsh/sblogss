@@ -1,7 +1,6 @@
 const UserSchema = require('../Schemas/User');
-const bycrypt = require('bcrypt');
-
-
+const bcrypt = require('bcrypt');
+const validator = require('validator');
 class User {
       username;
       email;
@@ -36,15 +35,15 @@ class User {
                   }
             })
       }
-      registerUser(){
-            return new Promise( async (resolve, reject) => {
-                  const hashPassword = await bycrypt.hash(this.password, 15);
+      registerUser() {
+            return new Promise(async (resolve, reject) => {
+                  const hashPassword = await bcrypt.hash(this.password, 15);
                   const user = UserSchema({
-                        name : this.name,
-                        username : this.username,
-                        email : this.email,
-                        password : this.password,
-                        phone : this.phone
+                        name: this.name,
+                        username: this.username,
+                        email: this.email,
+                        password: hashPassword,
+                        phone: this.phone
                   });
 
                   try {
@@ -55,6 +54,38 @@ class User {
                   }
             });
       };
+
+      static loginUser({ loginId, password }) {
+            return new Promise(async (resolve, reject) => {
+                  //let dbUser;
+                  //optimse for below conditions
+                  let dbUser = await UserSchema.findOne({ $or: [{ email: loginId }, { username: loginId }] });
+
+                  //user 1 - s@s.com
+                  //user 2 - s@s.com
+
+                  //user 2 - s@s.com , sang
+                  //user 2 - k@k.com , s@s.com
+                  // if (validator.isEmail(loginId)) {
+                  //       dbUser = await UserSchema.findOne({ email: loginId });
+                  // } else {
+                  //       dbUser = await UserSchema.findOne({ username: loginId });
+                  // }
+                  if (!dbUser) {
+                        return reject("No user is found");
+                  }
+                  const isMatch = await bcrypt.compare(password, dbUser.password);
+                  if (!isMatch) {
+                        return reject("NO USER MATCH");
+                  }
+                  resolve({
+                        username: dbUser.username,
+                        name: dbUser.name,
+                        email: dbUser.email
+                  });
+            });
+
+      }
 }
 
 module.exports = User;

@@ -3,8 +3,36 @@ const { cleanUpAndValidate, generateVerificationToken, sendVerificationEmail } =
 const User = require('../Models/User');
 const authRouter = express.Router();
 
-authRouter.post('/login', (req, res) => {
-      res.send('login');
+authRouter.post('/login', async (req, res) => {
+      const { loginId, password } = req.body;
+      if (!loginId || !password) {
+            return res.send({
+                  status: 401,
+                  message: "Missing Parameters",
+                  data: req.body
+            })
+      }
+      try {
+            const dbUser = await User.loginUser({ loginId, password });
+
+            req.session.isAuth = true;
+            req.session.user = {
+                  email: dbUser.email,
+                  username: dbUser.username,
+                  name: dbUser.name
+            }
+            return res.send({
+                  status: 200,
+                  message: "login successful",
+                  data: dbUser
+            })
+      } catch (error) {
+            return res.send({
+                  status: 401,
+                  error: error,
+                  message: "Error",
+            })
+      }
 
 });
 
@@ -52,7 +80,21 @@ authRouter.post('/register', async (req, res) => {
 });
 
 authRouter.post('/logout', (req, res) => {
-      res.send('logout');
+      const userData = req.session.user;
+      req.session.destroy(error => {
+            if (error) {
+                  res.send({
+                        status: 404,
+                        message: "Logout Failed. Try Again.",
+                        error: error
+                  })
+            }
+            return res.send({
+                  status: 200,
+                  message: "Logout Successful. SEE U SOON.",
+                  data: userData
+            })
+      })
 });
 
 module.exports = authRouter;
