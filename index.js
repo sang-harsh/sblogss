@@ -1,6 +1,7 @@
 // Package Imorts
 const express = require('express');
 const session = require('express-session');
+const cors = require('cors');
 const mongoDbSession = require('connect-mongodb-session')(session);
 
 // File Imports
@@ -22,6 +23,7 @@ const store = new mongoDbSession({
 
 //Middlewares
 app.use(express.json());
+app.use(cors());
 app.use(express.urlencoded({ extended: true }))
 app.use(session({
       secret: constants.SESSIONSECRETKEY,
@@ -31,6 +33,7 @@ app.use(session({
 }));
 
 //Routes
+
 app.use('/auth', AuthRouter);
 
 app.get('/', (req, res) => {
