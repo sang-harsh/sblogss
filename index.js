@@ -10,6 +10,7 @@ const db = require('./db');
 
 //Controllers
 const AuthRouter = require('./Controllers/Auth');
+const TweetsRouter = require('./Controllers/Tweets');
 
 const app = express();
 
@@ -29,9 +30,10 @@ app.use(session({
       store: store
 }));
 
+//Routes
 app.use('/auth', AuthRouter);
 
-app.get('/', (req,res) => {
+app.get('/', (req, res) => {
       res.send({
             status: 200,
             message: "Welcome"

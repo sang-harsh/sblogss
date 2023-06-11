@@ -19,7 +19,8 @@ authRouter.post('/login', async (req, res) => {
             req.session.user = {
                   email: dbUser.email,
                   username: dbUser.username,
-                  name: dbUser.name
+                  name: dbUser.name,
+                  userId: dbUser._id
             }
             return res.send({
                   status: 200,
