@@ -2,6 +2,7 @@ const express = require('express');
 const Router = express.Router();
 const Tweets = require('../Models/Tweets');
 const tweetsRouter = express.Router();
+const constants = require('../Utils/constants');
 
 tweetsRouter.post('/create-tweet', async (req, res) => {
       const { title, bodyText } = req.body;
@@ -44,6 +45,29 @@ tweetsRouter.post('/create-tweet', async (req, res) => {
             res.send({
                   status: 401,
                   message: "Failed to create Tweet . try again"
+            })
+      }
+});
+
+tweetsRouter.get('/get-tweet', async (req, res) => {
+
+      const offset = req.query.offset || 0;
+      const creationDateTime = new Date();
+
+      const Tweet = new Tweets({ title, bodyText, creationDateTime, userId });
+
+      try {
+            const allTweets = await Tweets.getTweets(offset);
+
+            return res.send({
+                  status: 200,
+                  message: "allTweets read succesful",
+                  body: allTweets
+            })
+      } catch (error) {
+            res.send({
+                  status: 401,
+                  message: "Failed to get all tweets . Try again"
             })
       }
 })

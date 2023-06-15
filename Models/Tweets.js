@@ -31,4 +31,21 @@ class Tweets {
                   }
             })
       }
+
+      static getBlogs(offset) {
+            return new Promise(async (resolve, reject) => {
+                  try {
+                        const dbTweets = await TweetSchema.aggregate([
+                              //sort , pagination
+                              { $sort: { "creationDateTime": -1 } },
+                              { $facet: [{ "skip": parent(offset) }, { "$limit": constants.TWEETS_LIMIT }] }
+                        ]);
+                        console.log(dbTweets);
+                        resolve(dbTweets[0].data);
+                  } catch (error) {
+                        return reject(error);
+                  }
+            })
+
+      }
 }
