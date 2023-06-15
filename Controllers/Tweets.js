@@ -44,7 +44,8 @@ tweetsRouter.post('/create-tweet', async (req, res) => {
       } catch (error) {
             res.send({
                   status: 401,
-                  message: "Failed to create Tweet . try again"
+                  message: "Failed to create Tweet . try again",
+                  error: error
             })
       }
 });
@@ -65,7 +66,8 @@ tweetsRouter.get('/get-all-tweets', async (req, res) => {
       } catch (error) {
             res.send({
                   status: 401,
-                  message: "Failed to get all tweets . Try again"
+                  message: "Failed to get all tweets . Try again",
+                  error: error
             })
       }
 })
@@ -87,7 +89,66 @@ tweetsRouter.get('/get-tweets-for-user', async (req, res) => {
       } catch (error) {
             res.send({
                   status: 401,
-                  message: "Failed to get allTweetsByUsername . Try again"
+                  message: "Failed to get allTweetsByUsername . Try again",
+                  error: error
+            })
+      }
+})
+
+tweetsRouter.get('/edit-tweet', async (req, res) => {
+      const { title, bodyText } = req.body.data;
+      const { tweetId } = req.body;
+      const userId = req.session.user.userId;
+      const offset = req.query.offset || 0;
+
+      if (!title && !bodyText) {
+            return res.send({
+                  status: 400,
+                  message: "Parameters Missing",
+                  error: "Missing title or bodytext"
+            })
+      }
+      try {
+
+            //Check if tweet belongs to the user
+            const tweet = new Tweets({ title, bodyText, tweetId });
+
+            const singleTweet = tweet.getTweetByTweetId();
+
+            if (userId !== singleTweet.userId) {
+                  return res.send({
+                        status: 403,
+                        message: "Tweet belongs to other user",
+                        error: "Not Authorised"
+                  })
+            }
+
+            //Verify the creation time
+            const currentDateTime = new Date();
+            const creationDateTime = new Date(singleTweet.creationDateTime);
+            const diff = (currentDateTime - creationDateTime.getTime()) / (1000 * 60);
+            if (diff > 30) {
+                  return res.send({
+                        status: 403,
+                        message: "Edit not allowed after 30 seconds of creation",
+                        error: "Not Allowed"
+                  })
+            }
+
+
+            //Update Tweet
+            const tweetData = await tweet.editTweet();
+
+            return res.send({
+                  status: 200,
+                  message: "Edit succesful",
+                  body: tweetData
+            })
+      } catch (error) {
+            res.send({
+                  status: 401,
+                  message: "Internal Error",
+                  error: error
             })
       }
 })

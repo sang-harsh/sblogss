@@ -3,18 +3,18 @@ class Tweets {
       bodyText;
       userId;
       creationDateTime;
+      tweetId;
 
-      constructor({ title, bodyText, userId, creationDateTime }) {
+      constructor({ title, bodyText, userId, creationDateTime, tweetId }) {
             this.title = title;
             this.bodyText = bodyText;
             this.userId = userId;
             this.creationDateTime = creationDateTime;
+            this.tweetId = tweetId;
       }
 
       createTweet() {
             return new Promise((resolve, reject) => {
-                  //this.title.trim();
-                  //this.bodyText.trim();
 
                   const tweet = new TweetsSchema({
                         title: this.title.trim(),
@@ -73,5 +73,38 @@ class Tweets {
                   }
             })
 
+      }
+
+      getTweetByTweetId() {
+            return new Promise(async (resolve, reject) => {
+                  try {
+                        const singleTweet = await TweetsSchema.findOne({ _id: this.tweetId });
+                        resolve(singleTweet);
+                  } catch (error) {
+                        return reject(error);
+                  }
+            })
+      }
+
+      editTweet() {
+            return new Promise(async (resolve, reject) => {
+
+                  let newTweetdata = {};
+
+                  if (this.title) {
+                        newTweetdata.title = this.title;
+                  }
+
+                  if (this.bodyText) {
+                        newTweetdata.bodyText = this.bodyText;
+                  }
+
+                  try {
+                        const oldTweetData = await TweetsSchema.findOneAndUpdate({ _id: this.tweetId }, newTweetdata);
+                        return resolve(oldTweetData);
+                  } catch (error) {
+                        return reject(error);
+                  }
+            })
       }
 }
