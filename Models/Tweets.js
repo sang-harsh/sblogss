@@ -16,7 +16,7 @@ class Tweets {
                   //this.title.trim();
                   //this.bodyText.trim();
 
-                  const tweet = new TweetSchema({
+                  const tweet = new TweetsSchema({
                         title: this.title.trim(),
                         bodyText: this.bodyText.trim(),
                         userId: this.userId,
@@ -32,13 +32,39 @@ class Tweets {
             })
       }
 
-      static getBlogs(offset) {
+      static getTweets(offset) {
             return new Promise(async (resolve, reject) => {
                   try {
-                        const dbTweets = await TweetSchema.aggregate([
+                        const dbTweets = await TweetsSchema.aggregate([
                               //sort , pagination
                               { $sort: { "creationDateTime": -1 } },
-                              { $facet: [{ "skip": parent(offset) }, { "$limit": constants.TWEETS_LIMIT }] }
+                              {
+                                    $facet: {
+                                          data: [{ "skip": parent(offset) }, { "$limit": constants.TWEETS_LIMIT }]
+                                    }
+                              }
+                        ]);
+                        console.log(dbTweets);
+                        resolve(dbTweets[0].data);
+                  } catch (error) {
+                        return reject(error);
+                  }
+            })
+
+      }
+
+      static getAllTweetsByUsername(offset, userId) {
+            return new Promise(async (resolve, reject) => {
+                  try {
+                        const dbTweets = await TweetsSchema.aggregate([
+                              //sort , pagination, userId
+                              { $match: { userId: userId } },
+                              { $sort: { "creationDateTime": -1 } },
+                              {
+                                    $facet: {
+                                          data: [{ "skip": parent(offset) }, { "$limit": constants.TWEETS_FOR_USER_LIMIT }]
+                                    }
+                              }
                         ]);
                         console.log(dbTweets);
                         resolve(dbTweets[0].data);

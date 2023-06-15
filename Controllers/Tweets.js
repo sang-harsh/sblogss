@@ -49,12 +49,10 @@ tweetsRouter.post('/create-tweet', async (req, res) => {
       }
 });
 
-tweetsRouter.get('/get-tweet', async (req, res) => {
+tweetsRouter.get('/get-all-tweets', async (req, res) => {
 
       const offset = req.query.offset || 0;
       const creationDateTime = new Date();
-
-      const Tweet = new Tweets({ title, bodyText, creationDateTime, userId });
 
       try {
             const allTweets = await Tweets.getTweets(offset);
@@ -68,6 +66,28 @@ tweetsRouter.get('/get-tweet', async (req, res) => {
             res.send({
                   status: 401,
                   message: "Failed to get all tweets . Try again"
+            })
+      }
+})
+
+
+tweetsRouter.get('/get-tweets-for-user', async (req, res) => {
+
+      const offset = req.query.offset || 0;
+      const { userId } = req.session.user;
+      const creationDateTime = new Date();
+      try {
+            const allTweetsByUsername = await Tweets.getAllTweetsByUsername(offset, userId);
+
+            return res.send({
+                  status: 200,
+                  message: "allTweetsByUsername read succesful",
+                  body: allTweets
+            })
+      } catch (error) {
+            res.send({
+                  status: 401,
+                  message: "Failed to get allTweetsByUsername . Try again"
             })
       }
 })
