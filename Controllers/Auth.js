@@ -1,5 +1,5 @@
 const express = require('express');
-const { cleanUpAndValidate, generateVerificationToken, sendVerificationEmail } = require('../Utils/AuthUtils');
+const { cleanUpAndValidate, generateVerificationToken, sendVerificationEmail, isAuth } = require('../Utils/AuthUtils');
 const User = require('../Models/User');
 const authRouter = express.Router();
 
@@ -80,7 +80,7 @@ authRouter.post('/register', async (req, res) => {
 
 });
 
-authRouter.post('/logout', (req, res) => {
+authRouter.post('/logout', isAuth ,  (req, res) => {
       const userData = req.session.user;
       req.session.destroy(error => {
             if (error) {

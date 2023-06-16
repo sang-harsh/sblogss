@@ -3,8 +3,9 @@ const Router = express.Router();
 const Tweets = require('../Models/Tweets');
 const tweetsRouter = express.Router();
 const constants = require('../Utils/constants');
+const { isAuth } = require('../Utils/AuthUtils');
 
-tweetsRouter.post('/create-tweet', async (req, res) => {
+tweetsRouter.post('/create-tweet', isAuth, async (req, res) => {
       const { title, bodyText } = req.body;
       const { userId } = req.session.user;
 
@@ -53,8 +54,6 @@ tweetsRouter.post('/create-tweet', async (req, res) => {
 tweetsRouter.get('/get-all-tweets', async (req, res) => {
 
       const offset = req.query.offset || 0;
-      const creationDateTime = new Date();
-
       try {
             const allTweets = await Tweets.getTweets(offset);
 
@@ -73,18 +72,17 @@ tweetsRouter.get('/get-all-tweets', async (req, res) => {
 })
 
 
-tweetsRouter.get('/get-tweets-for-user', async (req, res) => {
+tweetsRouter.get('/get-tweets-for-user', isAuth, async (req, res) => {
 
       const offset = req.query.offset || 0;
       const { userId } = req.session.user;
-      const creationDateTime = new Date();
       try {
             const allTweetsByUsername = await Tweets.getAllTweetsByUsername(offset, userId);
 
             return res.send({
                   status: 200,
                   message: "allTweetsByUsername read succesful",
-                  body: allTweets
+                  body: allTweetsByUsername
             })
       } catch (error) {
             res.send({
@@ -95,12 +93,12 @@ tweetsRouter.get('/get-tweets-for-user', async (req, res) => {
       }
 })
 
-tweetsRouter.get('/edit-tweet', async (req, res) => {
+tweetsRouter.post('/edit-tweet', isAuth, async (req, res) => {
+      //Add check for data and tweetId , return error 500 
+
       const { title, bodyText } = req.body.data;
       const { tweetId } = req.body;
       const userId = req.session.user.userId;
-      const offset = req.query.offset || 0;
-
       if (!title && !bodyText) {
             return res.send({
                   status: 400,
@@ -112,9 +110,9 @@ tweetsRouter.get('/edit-tweet', async (req, res) => {
 
             //Check if tweet belongs to the user
             const tweet = new Tweets({ title, bodyText, tweetId });
+            const singleTweet = await tweet.getTweetByTweetId();
 
-            const singleTweet = tweet.getTweetByTweetId();
-
+            //Error try toString
             if (userId !== singleTweet.userId) {
                   return res.send({
                         status: 403,
@@ -152,5 +150,53 @@ tweetsRouter.get('/edit-tweet', async (req, res) => {
             })
       }
 })
+
+tweetsRouter.post('/delete-tweet', isAuth, async (req, res) => {
+      //Add check for data and tweetId , return error 500
+
+      // Add a bin functionality
+
+      const { tweetId } = req.body;
+      const userId = req.session.user.userId;
+
+      if (!title && !bodyText) {
+            return res.send({
+                  status: 400,
+                  message: "Parameters Missing",
+                  error: "Missing title or bodytext"
+            })
+      }
+      try {
+
+            //Check if tweet belongs to the user
+            const tweet = new Tweets({ tweetId });
+            const singleTweet = await tweet.getTweetByTweetId();
+
+            if (userId !== singleTweet.userId) {
+                  return res.send({
+                        status: 403,
+                        message: "Tweet belongs to other user",
+                        error: "Not Authorised"
+                  })
+            }
+
+
+            //Update Tweet
+            const tweetData = await tweet.deleteTweet();
+
+            return res.send({
+                  status: 200,
+                  message: "Delete succesful",
+                  body: tweetData
+            })
+      } catch (error) {
+            res.send({
+                  status: 401,
+                  message: "Internal Error",
+                  error: error
+            })
+      }
+})
+
 
 module.exports = tweetsRouter;

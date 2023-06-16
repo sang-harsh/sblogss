@@ -26,6 +26,20 @@ function cleanUpAndValidate({ username, email, name, password, phone }) {
       });
 };
 
+//Auth middleware
+const isAuth = (req, res, next) => {
+      if (req.session.isAuth) {
+            next();
+      } else {
+            return res.send({
+                  status: 404,
+                  message: "Invalid User Session",
+                  error: "Login please"
+            })
+      }
+
+}
+
 //JWT trial
 function generateVerificationToken({ username, email, name, password, phone }) {
       return new Promise((resolve, reject) => {
@@ -43,4 +57,4 @@ function sendVerificationEmail({ username, email, name, password, phone }) {
             }
       });
 };
-module.exports = { cleanUpAndValidate, generateVerificationToken, sendVerificationEmail };
+module.exports = { cleanUpAndValidate, generateVerificationToken, isAuth, sendVerificationEmail };

@@ -107,4 +107,28 @@ class Tweets {
                   }
             })
       }
+
+      deleteTweet() {
+            return new Promise(async (resolve, reject) => {
+
+                  let newTweetdata = {};
+
+                  if (this.title) {
+                        newTweetdata.title = this.title;
+                  }
+
+                  if (this.bodyText) {
+                        newTweetdata.bodyText = this.bodyText;
+                  }
+
+                  try {
+                        const tweetData = await TweetsSchema.findOneAndDelete({ _id: this.tweetId });
+                        return resolve(tweetData);
+                  } catch (error) {
+                        return reject(error);
+                  }
+            })
+      }
+
+
 }
