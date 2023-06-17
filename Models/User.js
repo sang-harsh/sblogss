@@ -86,6 +86,18 @@ class User {
             });
 
       }
+
+      static verifyUserIdExists({ userId }) {
+            return new Promise(async (resolve, reject) => {
+                  try {
+                        //here check input
+                        const userDb = await UserSchema.findOne({ _id: userId });
+                        resolve(userDb);
+                  } catch (error) {
+                        reject(error);
+                  }
+            });
+      }
 }
 
 module.exports = User;

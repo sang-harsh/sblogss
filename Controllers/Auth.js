@@ -31,7 +31,7 @@ authRouter.post('/login', async (req, res) => {
             return res.send({
                   status: 401,
                   error: error,
-                  message: "Error",
+                  message: "Error in login",
             })
       }
 
@@ -80,7 +80,7 @@ authRouter.post('/register', async (req, res) => {
 
 });
 
-authRouter.post('/logout', isAuth ,  (req, res) => {
+authRouter.post('/logout', isAuth, (req, res) => {
       const userData = req.session.user;
       req.session.destroy(error => {
             if (error) {
