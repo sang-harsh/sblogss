@@ -5,7 +5,6 @@ const cors = require('cors');
 const mongoDbSession = require('connect-mongodb-session')(session);
 
 // File Imports
-const constants = require('./private_constants');
 const db = require('./db');
 
 
@@ -17,7 +16,7 @@ const FollowRouter = require('./Controllers/Follow');
 const app = express();
 
 const store = new mongoDbSession({
-      uri: constants.MONGOURI,
+      uri: process.env.MONGOURI,
       collection: 'tb_session'
 });
 
@@ -27,7 +26,7 @@ app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }))
 app.use(session({
-      secret: constants.SESSIONSECRETKEY,
+      secret: process.env.SESSIONSECRETKEY,
       resave: false,
       saveUninitialized: false,
       store: store

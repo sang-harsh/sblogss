@@ -1,7 +1,6 @@
 const FollowSchema = require('../Schemas/Follow');
-const constants = require('./private_constants');
-const mongodb = require('mongodb');
-const ObjectId = mongodb.Types.ObjectId;
+const constants = require('../Utils/constants');
+const ObjectId = require('mongoose').Types.ObjectId;
 const UserSchema = require('../Schemas/User');
 
 function followNow({ followerUserId, followedUserId }) {
@@ -45,6 +44,7 @@ function listUsersYouFollowed({ followerUserId, offset, limit }) {
 
                   response.data[0].forEach((item) => {
                         followedUserIds.push(ObjectId(item.followedUserId));
+                        // followedUserIds.push(item.followedUserId);
                   })
                   //followedUserIds = ["", ""]
 
@@ -79,6 +79,7 @@ function listFollowers({ followedUserId, offset, limit }) {
 
                   listFollowersReponse.data[0].forEach((item) => {
                         followersUserIds.push(ObjectId(item.followedUserId));
+                        // followersUserIds.push(item.followedUserId);
                   })
                   //followedUserIds = ["", ""]
 

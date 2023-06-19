@@ -1,5 +1,5 @@
 const { listUsersYouFollowed } = require('../Models/Follow');
-const constants = require('./constants');
+const constants = require('../Utils/constants');
 
 async function getFeedFollowingList(followerUserId) {
       const followedUserIds = [];

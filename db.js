@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const constants = require('./private_constants');
 const app = require('./index');
 const PORT = 3001;
+require('dotenv').config()
 
-mongoose.connect(constants.MONGOURI, {
+mongoose.connect(process.env.MONGOURI, {
       useNewurlParser: true,
       useUnifiedTopology: true,
 }).then(() => {
