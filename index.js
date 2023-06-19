@@ -40,7 +40,7 @@ app.use('/tweets', TweetsRouter);
 app.use('/follow', FollowRouter);
 
 app.get('/', (req, res) => {
-      res.send({
+      return res.send({
             status: 200,
             message: "Welcome"
       });

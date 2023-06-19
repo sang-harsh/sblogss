@@ -1,6 +1,5 @@
 const UserSchema = require('../Schemas/User');
 const bcrypt = require('bcrypt');
-const validator = require('validator');
 class User {
       username;
       email;
@@ -29,7 +28,7 @@ class User {
                         if (user && user.phone === phone) {
                               return reject('phone Already Exists');
                         }
-                        resolve();
+                        return resolve();
                   } catch (error) {
                         return reject(error);
                   }
@@ -78,7 +77,7 @@ class User {
                   if (!isMatch) {
                         return reject("NO USER MATCH");
                   }
-                  resolve({
+                  return resolve({
                         username: dbUser.username,
                         name: dbUser.name,
                         email: dbUser.email
@@ -87,14 +86,14 @@ class User {
 
       }
 
-      static verifyUserIdExists({ userId }) {
+      static verifyUserIdExists(userId) {
             return new Promise(async (resolve, reject) => {
                   try {
                         //here check input
                         const userDb = await UserSchema.findOne({ _id: userId });
-                        resolve(userDb);
+                        return resolve(userDb);
                   } catch (error) {
-                        reject(error);
+                        return reject(error);
                   }
             });
       }

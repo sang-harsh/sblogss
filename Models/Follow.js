@@ -1,12 +1,16 @@
 const FollowSchema = require('../Schemas/Follow');
+const constants = require('./private_constants');
+const mongodb = require('mongodb');
+const ObjectId = mongodb.Types.ObjectId;
+const UserSchema = require('../Schemas/User');
 
 function followNow({ followerUserId, followedUserId }) {
       return new Promise(async (resolve, reject) => {
             try {
                   //check this 
-                  const followData = await UserSchema.findOne({ followedUserId: followedUserId, followerUserId: followerUserId });
+                  const followData = await FollowSchema.findOne({ followedUserId: followedUserId, followerUserId: followerUserId });
                   if (followData)
-                        reject("User Already Followwed");
+                        return reject("User Already Followwed");
 
                   const creationDateTime = new Data();
 
@@ -15,11 +19,92 @@ function followNow({ followerUserId, followedUserId }) {
                   })
 
                   const followResponse = await followObj.save();
-                  resolve(followResponse);
+                  return resolve(followResponse);
             } catch (error) {
-                  reject(error);
+                  return reject(error);
             }
       });
 }
 
-module.exports = { followNow };
+function listUsersYouFollowed(followerUserId, offset) {
+      return new Promise(async (resolve, reject) => {
+            try {
+                  //check this 
+                  console.log(constants, 'constants');
+                  const response = await FollowSchema.aggregate([
+                        //check parseInt
+                        { $match: { followerUserId } },
+                        { $sort: { creationDateTime: -1 } },
+                        { $project: { followedUserId: 1 } },
+                        { $facet: { data: [{ "$skip": parseInt(offset) }, { "$limit": constants.FOLLOWERS_LIST_LIMIT }] } }
+                  ]);
+
+                  //response
+                  // [followedUserId : "", followedUserId: ""]
+                  const followedUserIds = [];
+
+                  response.data[0].forEach((item) => {
+                        followedUserIds.push(ObjectId(item.followedUserId));
+                  })
+                  //followedUserIds = ["", ""]
+
+                  const listOfUsersDataThatYouFollowed = await UserSchema.aggregate([
+                        { $match: { _id: { $in: followedUserIds } } },
+                        { $project: { username: 1, name: 1, _id } },
+                  ])
+
+                  return resolve(listOfUsersDataThatYouFollowed);
+            } catch (error) {
+                  return reject(error);
+            }
+      });
+}
+
+function listFollowers(followedUserId, offset) {
+      return new Promise(async (resolve, reject) => {
+            try {
+                  //check this 
+                  console.log(constants, 'constants');
+                  const listFollowersReponse = await FollowSchema.aggregate([
+                        //
+                        { $match: { followedUserId } },
+                        { $sort: { creationDateTime: -1 } },
+                        { $project: { followerUserId: 1 } },
+                        { $facet: { data: [{ "$skip": parseInt(offset) }, { "$limit": constants.FOLLOWERS_LIST_LIMIT }] } }
+                  ]);
+
+                  //listFollowersReponse
+                  // [followedUserId : "", followedUserId: ""]
+                  const followersUserIds = [];
+
+                  listFollowersReponse.data[0].forEach((item) => {
+                        followersUserIds.push(ObjectId(item.followedUserId));
+                  })
+                  //followedUserIds = ["", ""]
+
+                  const listOfFollowers = await UserSchema.aggregate([
+                        { $match: { _id: { $in: followersUserIds } } },
+                        { $project: { username: 1, name: 1, _id } },
+                  ])
+
+                  return resolve(listOfFollowers);
+            } catch (error) {
+                  return reject(error);
+            }
+      });
+}
+
+function unfollowUser(followedUserId, followerUserId) {
+      return new Promise(async (resolve, reject) => {
+            try {
+                  const unfollowData = await TweetsSchema.findOneAndDelete({ followedUserId, followerUserId });
+                  if (!unfollowData) {
+                        return reject("User Not followed or not present");
+                  }
+                  return resolve(unfollowData);
+            } catch (error) {
+                  return reject(error);
+            }
+      });
+}
+module.exports = { followNow, listUsersYouFollowed, listFollowers, unfollowUser };

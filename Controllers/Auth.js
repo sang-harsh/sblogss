@@ -1,6 +1,7 @@
 const express = require('express');
 const { cleanUpAndValidate, generateVerificationToken, sendVerificationEmail, isAuth } = require('../Utils/AuthUtils');
 const User = require('../Models/User');
+const constants = require('../Utils/constants');
 const authRouter = express.Router();
 
 authRouter.post('/login', async (req, res) => {
@@ -84,7 +85,7 @@ authRouter.post('/logout', isAuth, (req, res) => {
       const userData = req.session.user;
       req.session.destroy(error => {
             if (error) {
-                  res.send({
+                  return res.send({
                         status: 404,
                         message: "Logout Failed. Try Again.",
                         error: error

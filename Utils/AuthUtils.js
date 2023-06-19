@@ -18,7 +18,7 @@ function cleanUpAndValidate({ username, email, name, password, phone }) {
                   if (phone && phone.length !== 10) {
                         return reject('Invalid phone');
                   }
-                  resolve();
+                  return resolve();
             } catch (error) {
                   return reject('Not valid');
             }
@@ -44,7 +44,7 @@ const isAuth = (req, res, next) => {
 function generateVerificationToken({ username, email, name, password, phone }) {
       return new Promise((resolve, reject) => {
             if (!(name && username && email && password)) {
-                  reject('Missing parameters');
+                  return reject('Missing parameters');
             }
       });
 };
@@ -53,7 +53,7 @@ function generateVerificationToken({ username, email, name, password, phone }) {
 function sendVerificationEmail({ username, email, name, password, phone }) {
       return new Promise((resolve, reject) => {
             if (!(name && username && email && password)) {
-                  reject('Missing parameters');
+                  return reject('Missing parameters');
             }
       });
 };

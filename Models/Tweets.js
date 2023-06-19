@@ -33,19 +33,20 @@ class Tweets {
       }
 
       static getTweets(offset) {
+            console.log(constants, 'constants');
             return new Promise(async (resolve, reject) => {
                   try {
                         const dbTweets = await TweetsSchema.aggregate([
                               //sort , pagination
-                              { $sort: { "creationDateTime": -1 } },
+                              { $sort: { creationDateTime: -1 } },
                               {
                                     $facet: {
-                                          data: [{ "skip": parent(offset) }, { "$limit": constants.TWEETS_LIMIT }]
+                                          data: [{ "$skip": parseInt(offset) }, { "$limit": constants.TWEETS_LIMIT }]
                                     }
                               }
                         ]);
                         console.log(dbTweets);
-                        resolve(dbTweets[0].data);
+                        return resolve(dbTweets[0].data);
                   } catch (error) {
                         return reject(error);
                   }
@@ -54,20 +55,21 @@ class Tweets {
       }
 
       static getAllTweetsByUsername(offset, userId) {
+            console.log(constants, 'constants');
             return new Promise(async (resolve, reject) => {
                   try {
                         const dbTweets = await TweetsSchema.aggregate([
                               //sort , pagination, userId
                               { $match: { userId: userId } },
-                              { $sort: { "creationDateTime": -1 } },
+                              { $sort: { creationDateTime: -1 } },
                               {
                                     $facet: {
-                                          data: [{ "skip": parent(offset) }, { "$limit": constants.TWEETS_FOR_USER_LIMIT }]
+                                          data: [{ "$skip": parseInt(offset) }, { "$limit": constants.TWEETS_FOR_USER_LIMIT }]
                                     }
                               }
                         ]);
                         console.log(dbTweets);
-                        resolve(dbTweets[0].data);
+                        return resolve(dbTweets[0].data);
                   } catch (error) {
                         return reject(error);
                   }
@@ -79,7 +81,7 @@ class Tweets {
             return new Promise(async (resolve, reject) => {
                   try {
                         const singleTweet = await TweetsSchema.findOne({ _id: this.tweetId });
-                        resolve(singleTweet);
+                        return resolve(singleTweet);
                   } catch (error) {
                         return reject(error);
                   }

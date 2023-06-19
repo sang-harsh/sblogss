@@ -17,14 +17,14 @@ tweetsRouter.post('/create-tweet', isAuth, async (req, res) => {
       }
 
       if (typeof (title) !== 'string' || typeof (bodyText) !== 'string') {
-            res.send({
+            return res.send({
                   status: 400,
                   message: "Parameters Should be string"
             })
       }
 
       if (title.length > 200 || bodyText > 1000) {
-            res.send({
+            return res.send({
                   status: 401,
                   message: "Parameters Too Long"
             })
@@ -43,7 +43,7 @@ tweetsRouter.post('/create-tweet', isAuth, async (req, res) => {
                   body: dbTweet
             })
       } catch (error) {
-            res.send({
+            return res.send({
                   status: 401,
                   message: "Failed to create Tweet . try again",
                   error: error
@@ -63,7 +63,7 @@ tweetsRouter.get('/get-all-tweets', async (req, res) => {
                   body: allTweets
             })
       } catch (error) {
-            res.send({
+            return res.send({
                   status: 401,
                   message: "Failed to get all tweets . Try again",
                   error: error
@@ -85,7 +85,7 @@ tweetsRouter.get('/get-tweets-for-user', isAuth, async (req, res) => {
                   body: allTweetsByUsername
             })
       } catch (error) {
-            res.send({
+            return res.send({
                   status: 401,
                   message: "Failed to get allTweetsByUsername . Try again",
                   error: error
@@ -143,7 +143,7 @@ tweetsRouter.post('/edit-tweet', isAuth, async (req, res) => {
                   body: tweetData
             })
       } catch (error) {
-            res.send({
+            return res.send({
                   status: 401,
                   message: "Internal Error",
                   error: error
@@ -190,7 +190,7 @@ tweetsRouter.post('/delete-tweet', isAuth, async (req, res) => {
                   body: tweetData
             })
       } catch (error) {
-            res.send({
+            return res.send({
                   status: 401,
                   message: "Internal Error",
                   error: error
