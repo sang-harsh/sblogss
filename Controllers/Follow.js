@@ -87,7 +87,7 @@ FollowRouter.get('/following-list/:userId', isAuth, async (req, res) => {
 
             const offset = req.query.offset || 0;
             // below fn does 2 things - check if user existsa and is user is currently following the user
-            const listOfUsersYouFollowed = await listUsersYouFollowed(followerUserId, offset);
+            const listOfUsersYouFollowed = await listUsersYouFollowed({ followerUserId, offset, limit: constants.FOLLOWED_ACCOUNTS_LIST_LIMIT });
 
             return res.send({
                   status: 200,
@@ -129,7 +129,7 @@ FollowRouter.get('/follower-list/:userId/:offset', isAuth, async (req, res) => {
 
             //const offset = req.query.offset || 0;
             // below fn does 2 things - check if user existsa and is user is currently following the user
-            const listOfFollowers = await listFollowers(followedUserId, offset);
+            const listOfFollowers = await listFollowers({ followedUserId, offset, limit: constants.FOLLOWERS_LIST_LIMIT });
 
             return res.send({
                   status: 200,

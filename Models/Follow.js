@@ -26,7 +26,7 @@ function followNow({ followerUserId, followedUserId }) {
       });
 }
 
-function listUsersYouFollowed(followerUserId, offset) {
+function listUsersYouFollowed({ followerUserId, offset, limit }) {
       return new Promise(async (resolve, reject) => {
             try {
                   //check this 
@@ -36,7 +36,7 @@ function listUsersYouFollowed(followerUserId, offset) {
                         { $match: { followerUserId } },
                         { $sort: { creationDateTime: -1 } },
                         { $project: { followedUserId: 1 } },
-                        { $facet: { data: [{ "$skip": parseInt(offset) }, { "$limit": constants.FOLLOWERS_LIST_LIMIT }] } }
+                        { $facet: { data: [{ "$skip": parseInt(offset) }, { "$limit": limit }] } }
                   ]);
 
                   //response
@@ -60,7 +60,7 @@ function listUsersYouFollowed(followerUserId, offset) {
       });
 }
 
-function listFollowers(followedUserId, offset) {
+function listFollowers({ followedUserId, offset, limit }) {
       return new Promise(async (resolve, reject) => {
             try {
                   //check this 
@@ -70,7 +70,7 @@ function listFollowers(followedUserId, offset) {
                         { $match: { followedUserId } },
                         { $sort: { creationDateTime: -1 } },
                         { $project: { followerUserId: 1 } },
-                        { $facet: { data: [{ "$skip": parseInt(offset) }, { "$limit": constants.FOLLOWERS_LIST_LIMIT }] } }
+                        { $facet: { data: [{ "$skip": parseInt(offset) }, { "$limit": limit }] } }
                   ]);
 
                   //listFollowersReponse

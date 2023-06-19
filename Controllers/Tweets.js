@@ -4,6 +4,8 @@ const Tweets = require('../Models/Tweets');
 const tweetsRouter = express.Router();
 const constants = require('../Utils/constants');
 const { isAuth } = require('../Utils/AuthUtils');
+const { getFeedFollowingList } = require('../Utils/TweetsUtils');
+
 
 tweetsRouter.post('/create-tweet', isAuth, async (req, res) => {
       const { title, bodyText } = req.body;
@@ -66,6 +68,26 @@ tweetsRouter.get('/get-all-tweets', async (req, res) => {
             return res.send({
                   status: 401,
                   message: "Failed to get all tweets . Try again",
+                  error: error
+            })
+      }
+})
+
+tweetsRouter.get('/get-all-tweets-for-subscriptions', async (req, res) => {
+      try {
+            const followerUserId = req.session.user.userId;
+
+            const followedUserIds = await getFeedFollowingList(followerUserId);
+            const tweetsForFeed = await Tweets.getTweets(offset, followerUserId);
+            return res.send({
+                  status: 200,
+                  message: "tweetsForFeed read succesful",
+                  body: tweetsForFeed
+            })
+      } catch (error) {
+            return res.send({
+                  status: 401,
+                  message: "Failed to get tweetsForFeed . Try again",
                   error: error
             })
       }
